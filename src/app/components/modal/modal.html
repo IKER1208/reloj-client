@@ -1,0 +1,28 @@
+@if (show) {
+  <div class="fixed inset-0 overflow-y-auto px-4 py-6 sm:px-0 z-50" (keydown)="onKeydownHandler($event)">
+    <div 
+      class="fixed inset-0 transform transition-all bg-gray-500 bg-opacity-75"
+      (click)="onBackdropClick()"
+    ></div>
+
+    <div 
+      class="mb-6 bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:w-full sm:mx-auto"
+      [ngClass]="maxWidthClass"
+      (click)="onModalClick($event)"
+    >
+      @if (title) {
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h3 class="text-lg font-medium text-gray-900">{{ title }}</h3>
+        </div>
+      }
+      
+      <div class="px-6 py-4">
+        <ng-content></ng-content>
+      </div>
+      
+      <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
+        <ng-content select="[slot=actions]"></ng-content>
+      </div>
+    </div>
+  </div>
+}

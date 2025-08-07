@@ -1,0 +1,81 @@
+<div class="container mx-auto p-4 max-w-7xl">
+  <h1 class="text-2xl font-bold mb-4">Gestor de relojes</h1>
+
+  <div class="mb-6 p-4 bg-white rounded-lg shadow">
+    <h2 class="text-lg font-semibold mb-4">Agregar nuevo reloj</h2>
+    <form (ngSubmit)="addClock()" class="space-y-4">
+      <div class="grid grid-cols-4 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Hora</label>
+          <input 
+            type="number" 
+            [(ngModel)]="viewModel.clock.hours" 
+            name="hours"
+            class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+            [ngClass]="{ 'border-red-500': errors.hours }"
+          >
+          @if (errors.hours) {
+            <span class="text-red-500 text-sm">{{ errors.hours }}</span>
+          }
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Minutos</label>
+          <input 
+            type="number" 
+            [(ngModel)]="viewModel.clock.minutes" 
+            name="minutes"
+            class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+            [ngClass]="{ 'border-red-500': errors.minutes }"
+          >
+          @if (errors.minutes) {
+            <span class="text-red-500 text-sm">{{ errors.minutes }}</span>
+          }
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Segundos</label>
+          <input 
+            type="number" 
+            [(ngModel)]="viewModel.clock.seconds" 
+            name="seconds"
+            class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+            [ngClass]="{ 'border-red-500': errors.seconds }"
+          >
+          @if (errors.seconds) {
+            <span class="text-red-500 text-sm">{{ errors.seconds }}</span>
+          }
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">AM/PM</label>
+          <select 
+            [(ngModel)]="viewModel.clock.isPM" 
+            name="isPM"
+            class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+          >
+            <option [ngValue]="false">AM</option>
+            <option [ngValue]="true">PM</option>
+          </select>
+        </div>
+      </div>
+      <button 
+        type="submit"
+        class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+      >
+        Agregar Reloj
+      </button>
+    </form>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center">
+    @for (clock of clocks; track clock.id) {
+      <div class="relative w-full max-w-[200px]">
+        <app-clock 
+          [initialTime]="{ hours: clock.hours, minutes: clock.minutes, seconds: clock.seconds, isPM: clock.isPM }"
+          [clockId]="clock.id"
+          (delete)="removeClock($event)"
+        ></app-clock>
+      </div>
+    }
+  </div>
+
+  <app-success-message [show]="!!successMessage" [message]="successMessage"></app-success-message>
+</div>

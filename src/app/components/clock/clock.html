@@ -1,0 +1,235 @@
+<div class="clock-container">
+  <div class="analog-clock" [ngStyle]="clockStyles">
+    <div class="clock-face">
+      @for (i of clockDots; track i) {
+        <div class="clock-dot"
+             [ngClass]="{ 'hour-dot': i % 5 === 0 }"
+             [ngStyle]="{
+               backgroundColor: i % 5 === 0 ? colors.dot : colors.smallDot,
+               transform: 'rotate(' + (i * 6) + 'deg) translateY(-90px)'
+             }">
+        </div>
+      }
+
+      <div class="number number-12" [ngStyle]="{ color: colors.number }">12</div>
+      <div class="number number-3" [ngStyle]="{ color: colors.number }">3</div>
+      <div class="number number-6" [ngStyle]="{ color: colors.number }">6</div>
+      <div class="number number-9" [ngStyle]="{ color: colors.number }">9</div>
+      
+      <div class="center-dot" [ngStyle]="{ backgroundColor: colors.dot }"></div>
+      
+      <div class="hand hour-hand" [ngStyle]="{ backgroundColor: colors.hourHand, transform: 'rotate(' + rotations.hourRotation + 'deg)' }"></div>
+      <div class="hand minute-hand" [ngStyle]="{ backgroundColor: colors.minuteHand, transform: 'rotate(' + rotations.minuteRotation + 'deg)' }"></div>
+      <div class="hand second-hand" [ngStyle]="{ backgroundColor: colors.secondHand, transform: 'rotate(' + rotations.secondRotation + 'deg)' }"></div>
+    </div>
+  </div>
+  
+  <div class="digital-clock" [ngStyle]="{ color: colors.digital }">
+    {{ formattedTime }}
+  </div>
+
+  <div class="clock-actions">
+    <app-action-button (click)="openTimeSettings()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+        <circle cx="12" cy="12" r="3"></circle>
+      </svg>
+    </app-action-button>
+    <app-action-button (click)="openColorSettings()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+      </svg>
+    </app-action-button>
+    <app-action-button type="delete" (click)="onDelete()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="3 6 5 6 21 6"></polyline>
+        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+      </svg>
+    </app-action-button>
+  </div>
+
+  <app-success-message [show]="!!successMessage" [message]="successMessage"></app-success-message>
+
+  <app-modal [show]="showTimeSettings" title="Configuración de Tiempo" (close)="closeTimeSettings()">
+    <div class="preview-clock">
+      <div class="analog-clock" [ngStyle]="clockStyles">
+        <div class="clock-face">
+          @for (i of clockDots; track i) {
+            <div class="clock-dot"
+                 [ngClass]="{ 'hour-dot': i % 5 === 0 }"
+                 [ngStyle]="{
+                   backgroundColor: i % 5 === 0 ? colors.dot : colors.smallDot,
+                   transform: 'rotate(' + (i * 6) + 'deg) translateY(-90px)'
+                 }">
+            </div>
+          }
+
+          <div class="number number-12" [ngStyle]="{ color: colors.number }">12</div>
+          <div class="number number-3" [ngStyle]="{ color: colors.number }">3</div>
+          <div class="number number-6" [ngStyle]="{ color: colors.number }">6</div>
+          <div class="number number-9" [ngStyle]="{ color: colors.number }">9</div>
+          
+          <div class="center-dot" [ngStyle]="{ backgroundColor: colors.dot }"></div>
+          
+          <div class="hand hour-hand" [ngStyle]="{ backgroundColor: colors.hourHand, transform: 'rotate(' + rotations.hourRotation + 'deg)' }"></div>
+          <div class="hand minute-hand" [ngStyle]="{ backgroundColor: colors.minuteHand, transform: 'rotate(' + rotations.minuteRotation + 'deg)' }"></div>
+          <div class="hand second-hand" [ngStyle]="{ backgroundColor: colors.secondHand, transform: 'rotate(' + rotations.secondRotation + 'deg)' }"></div>
+        </div>
+      </div>
+      <div class="digital-clock" [ngStyle]="{ color: colors.digital }">
+        {{ formattedTime }}
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-group">
+        <label>Hora:</label>
+        <div class="time-input-group">
+          <button class="time-btn" (click)="decrementTime('hours')">-</button>
+          <input 
+            type="number" 
+            [(ngModel)]="viewModel.clock.hours" 
+            (input)="handleTimeChange()"
+            [ngClass]="{ 'error': errors.hours }"
+          >
+          <button class="time-btn" (click)="incrementTime('hours')">+</button>
+        </div>
+        @if (errors.hours) {
+          <span class="error-message">{{ errors.hours }}</span>
+        }
+      </div>
+      <div class="settings-group">
+        <label>Minutos:</label>
+        <div class="time-input-group">
+          <button class="time-btn" (click)="decrementTime('minutes')">-</button>
+          <input 
+            type="number" 
+            [(ngModel)]="viewModel.clock.minutes" 
+            (input)="handleTimeChange()"
+            [ngClass]="{ 'error': errors.minutes }"
+          >
+          <button class="time-btn" (click)="incrementTime('minutes')">+</button>
+        </div>
+        @if (errors.minutes) {
+          <span class="error-message">{{ errors.minutes }}</span>
+        }
+      </div>
+      <div class="settings-group">
+        <label>Segundos:</label>
+        <div class="time-input-group">
+          <button class="time-btn" (click)="decrementTime('seconds')">-</button>
+          <input 
+            type="number" 
+            [(ngModel)]="viewModel.clock.seconds" 
+            (input)="handleTimeChange()"
+            [ngClass]="{ 'error': errors.seconds }"
+          >
+          <button class="time-btn" (click)="incrementTime('seconds')">+</button>
+        </div>
+        @if (errors.seconds) {
+          <span class="error-message">{{ errors.seconds }}</span>
+        }
+      </div>
+      <div class="settings-group">
+        <label>AM/PM:</label>
+        <select [(ngModel)]="viewModel.clock.isPM" (change)="handleTimeChange()">
+          <option [ngValue]="false">AM</option>
+          <option [ngValue]="true">PM</option>
+        </select>
+      </div>
+    </div>
+
+    <div slot="actions">
+      <button (click)="closeTimeSettings()" class="close-btn">Guardar</button>
+    </div>
+  </app-modal>
+
+  <app-modal [show]="showColorSettings" title="Personalización de Colores" (close)="closeColorSettings()">
+    <div class="preview-clock">
+      <div class="analog-clock" [ngStyle]="clockStyles">
+        <div class="clock-face">
+          @for (i of clockDots; track i) {
+            <div class="clock-dot"
+                 [ngClass]="{ 'hour-dot': i % 5 === 0 }"
+                 [ngStyle]="{
+                   backgroundColor: i % 5 === 0 ? colors.dot : colors.smallDot,
+                   transform: 'rotate(' + (i * 6) + 'deg) translateY(-90px)'
+                 }">
+            </div>
+          }
+
+          <div class="number number-12" [ngStyle]="{ color: colors.number }">12</div>
+          <div class="number number-3" [ngStyle]="{ color: colors.number }">3</div>
+          <div class="number number-6" [ngStyle]="{ color: colors.number }">6</div>
+          <div class="number number-9" [ngStyle]="{ color: colors.number }">9</div>
+          
+          <div class="center-dot" [ngStyle]="{ backgroundColor: colors.dot }"></div>
+          
+          <div class="hand hour-hand" [ngStyle]="{ backgroundColor: colors.hourHand, transform: 'rotate(' + rotations.hourRotation + 'deg)' }"></div>
+          <div class="hand minute-hand" [ngStyle]="{ backgroundColor: colors.minuteHand, transform: 'rotate(' + rotations.minuteRotation + 'deg)' }"></div>
+          <div class="hand second-hand" [ngStyle]="{ backgroundColor: colors.secondHand, transform: 'rotate(' + rotations.secondRotation + 'deg)' }"></div>
+        </div>
+      </div>
+      <div class="digital-clock" [ngStyle]="{ color: colors.digital }">
+        {{ formattedTime }}
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="color-settings-grid">
+        <div class="settings-group">
+          <label>Color de Números</label>
+          <div class="color-input-group">
+            <input type="color" [(ngModel)]="colors.number">
+          </div>
+        </div>
+        <div class="settings-group">
+          <label>Color de Puntos Principales</label>
+          <div class="color-input-group">
+            <input type="color" [(ngModel)]="colors.dot">
+          </div>
+        </div>
+        <div class="settings-group">
+          <label>Color de Puntos Pequeños</label>
+          <div class="color-input-group">
+            <input type="color" [(ngModel)]="colors.smallDot">
+          </div>
+        </div>
+        <div class="settings-group">
+          <label>Color de Manecilla de Horas</label>
+          <div class="color-input-group">
+            <input type="color" [(ngModel)]="colors.hourHand">
+          </div>
+        </div>
+        <div class="settings-group">
+          <label>Color de Manecilla de Minutos</label>
+          <div class="color-input-group">
+            <input type="color" [(ngModel)]="colors.minuteHand">
+          </div>
+        </div>
+        <div class="settings-group">
+          <label>Color de Manecilla de Segundos</label>
+          <div class="color-input-group">
+            <input type="color" [(ngModel)]="colors.secondHand">
+          </div>
+        </div>
+        <div class="settings-group">
+          <label>Color del Reloj Digital</label>
+          <div class="color-input-group">
+            <input type="color" [(ngModel)]="colors.digital">
+          </div>
+        </div>
+        <div class="settings-group">
+          <label>Color de Fondo</label>
+          <div class="color-input-group">
+            <input type="color" [(ngModel)]="colors.background">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div slot="actions">
+      <button (click)="closeColorSettings()" class="close-btn">Guardar</button>
+    </div>
+  </app-modal>
+</div>
